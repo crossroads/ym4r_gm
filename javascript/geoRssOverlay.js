@@ -64,7 +64,7 @@ GeoRssOverlay.prototype.showHide=function() {
 GeoRssOverlay.prototype.showMarker = function(id){
     var marker = this.markers[id];
     if(marker != undefined){
-	GEvent.trigger(marker,"click");
+	google.maps.event.trigger(marker,"click");
     }
 }
 
@@ -163,12 +163,12 @@ GeoRssOverlay.prototype.createMarker = function(item,index) {
     var html = "<a href=\"" + link + "\">" + title + "</a><p/>" + description;
     
     if(this.contentDiv == undefined){
-	GEvent.addListener(marker, "click", function() {
+	google.maps.event.addListener(marker, "click", function() {
 	    marker.openInfoWindowHtml(html);
 	});
     }else{
 	var contentDiv = this.contentDiv;
-	GEvent.addListener(marker, "click", function() {
+	google.maps.event.addListener(marker, "click", function() {
 	    document.getElementById(contentDiv).innerHTML = html;
 	});
     }

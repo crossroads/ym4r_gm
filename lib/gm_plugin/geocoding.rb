@@ -12,14 +12,13 @@ module Ym4r
       GEO_BAD_KEY = 610
       GEO_TOO_MANY_QUERIES = 620
       GEO_SERVER_ERROR = 500
-      
-      #Gets placemarks by querying the Google Maps Geocoding service with the +request+ string. Options can either an explicity GMaps API key (<tt>:key</tt>) or a host, (<tt>:host</tt>). 
+
+      #Gets placemarks by querying the Google Maps Geocoding service with the +request+ string. Options can either an explicity GMaps API key (<tt>:key</tt>) or a host, (<tt>:host</tt>).
       def self.get(request,options = {})
-        api_key = ApiKey.get(options)
         sensor = options[:sensor] || false
         output =  options[:output] || "kml"
         output_encoding = options[:output_encoding] || "utf-8"
-        url = "http://maps.google.com/maps/geo?q=#{URI.encode(request)}&key=#{api_key}&sensor=#{sensor}&output=#{output}&oe=#{output_encoding}"
+        url = "http://maps.google.com/maps/geo?q=#{URI.encode(request)}&sensor=#{sensor}&output=#{output}&oe=#{output_encoding}"
 
         res = open(url).read
 
@@ -29,9 +28,9 @@ module Ym4r
           placemarks = Placemarks.new(res['name'],res['Status']['code'])
           if res['Placemark']
             placemark = res['Placemark']
-   
+
             placemark.each do |data|
-              
+
               data_country = data['Country']['CountryNameCode'] rescue ""
               data_administrative = data['Country']['AdministrativeArea']['AdministrativeAreaName'] rescue ""
               data_sub_administrative = data['Country']['AdministrativeArea']['SubAdministrativeArea']['SubAdministrativeAreaName'] rescue ""
@@ -44,7 +43,7 @@ module Ym4r
               unless data_accuracy.nil?
                 data_accuracy = data_accuracy.to_i
               end
-        
+
               placemarks << Geocoding::Placemark.new(data['address'],
                                                      data_country,
                                                      data_administrative,
@@ -54,12 +53,12 @@ module Ym4r
                                                      data_thoroughfare,
                                                      data_postal_code,
                                                      lon, lat, data_accuracy)
-                                                     
+
             end
           end
           when :kml, :xml
-          
-          doc = REXML::Document.new(res) 
+
+          doc = REXML::Document.new(res)
 
           response = doc.elements['//Response']
           placemarks = Placemarks.new(response.elements['name'].text,response.elements['Status/code'].text.to_i)
@@ -88,7 +87,7 @@ module Ym4r
                                                    lon, lat, data_accuracy )
           end
         end
-                
+
         placemarks
       end
 

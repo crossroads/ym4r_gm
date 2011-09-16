@@ -61,7 +61,7 @@ GMarkerGroup.prototype.addMarker = function(marker,id){
 GMarkerGroup.prototype.showMarker = function(id){
     var marker = this.markersById[id];
     if(marker != undefined){
-	GEvent.trigger(marker,"click");
+	google.maps.event.trigger(marker,"click");
     }
 }
 

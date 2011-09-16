@@ -58,9 +58,9 @@ Clusterer.prototype.initialize = function ( map ){
     this.map = map;
     this.currentZoomLevel = map.getZoom();
    
-    GEvent.addListener( map, 'zoomend', Clusterer.makeCaller( Clusterer.display, this ) );
-    GEvent.addListener( map, 'moveend', Clusterer.makeCaller( Clusterer.display, this ) );
-    GEvent.addListener( map, 'infowindowclose', Clusterer.makeCaller( Clusterer.popDown, this ) );
+    google.maps.event.addListener( map, 'zoomend', Clusterer.makeCaller( Clusterer.display, this ) );
+    google.maps.event.addListener( map, 'moveend', Clusterer.makeCaller( Clusterer.display, this ) );
+    google.maps.event.addListener( map, 'infowindowclose', Clusterer.makeCaller( Clusterer.popDown, this ) );
     //Set map for each marker
     for(var i = 0,len = this.markers.length ; i < len ; i++){
 	this.markers[i].setMap( map );
@@ -283,7 +283,7 @@ Clusterer.display = function ( clusterer ){
 		var location = new GLatLng( yTotal / cluster.markerCount, xTotal / cluster.markerCount );
 		marker = new GMarker( location, { icon: clusterer.icon } );
 		cluster.marker = marker;
-		GEvent.addListener( marker, 'click', Clusterer.makeCaller( Clusterer.popUp, cluster ) );
+		google.maps.event.addListener( marker, 'click', Clusterer.makeCaller( Clusterer.popUp, cluster ) );
 	    }
 	}
     }

@@ -22,7 +22,6 @@ Gem::Specification.new do |s|
     "README.md",
     "Rakefile",
     "VERSION",
-    "gmaps_api_key.yml.sample",
     "init.rb",
     "install.rb",
     "javascript/clusterer.js",
