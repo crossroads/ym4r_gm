@@ -39,7 +39,7 @@ function addCodeToFunction(func,code){
 function addGeocodingToMarker(marker, address){
   marker.orig_initialize = marker.initialize;
   orig_redraw = marker.redraw;
-  marker.redraw = function(force){}; //empty the redraw method so no error when called by addOverlay.
+  marker.redraw = function(force){}; //empty the redraw method so no error when called by setMap.
   marker.initialize = function(map){
     new google.maps.Geocoder().geocode({'address': address}, function(results, status) {
       if (status == google.maps.GeocoderStatus.OK) {

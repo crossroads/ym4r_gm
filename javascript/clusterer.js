@@ -293,7 +293,7 @@ Clusterer.display = function ( clusterer ){
     marker = visibleMarkers[i];
     if ( marker != null && ! marker.onMap && ! marker.inCluster )
     {
-        clusterer.map.addOverlay( marker );
+        marker.setMap(clusterer.map);
         marker.addedToMap();
         marker.onMap = true;
     }
@@ -303,7 +303,7 @@ Clusterer.display = function ( clusterer ){
   for ( i = 0, len = clusterer.clusters.length ; i < len; ++i ){
     cluster = clusterer.clusters[i];
     if ( cluster != null && ! cluster.onMap && bounds.contains( cluster.marker.getPoint() )){
-        clusterer.map.addOverlay( cluster.marker );
+        cluster.marker.setMap(clusterer.map);
         cluster.onMap = true;
     }
   }
@@ -379,7 +379,8 @@ Clusterer.makeCaller = function ( func, arg ){
 
 
 // Augment google.maps.Marker so it handles markers that have been created but
-// not yet addOverlayed.
+// not yet placed by setMap.
+// TODO: Fix setMap conflict
 google.maps.Marker.prototype.setMap = function ( map ){
   this.map = map;
 };

@@ -4,6 +4,11 @@ module Ym4r
     class GMap
       include MappingObject
 
+      ROADMAP   = "roadmap"
+      SATELLITE = "satellite"
+      HYBRID    = "hybrid"
+      TERRAIN   = "terrain"
+
       #A constant containing the declaration of the VML namespace, necessary to display polylines under IE.
       VML_NAMESPACE = "xmlns:v=\"urn:schemas-microsoft-com:vml\""
 
@@ -14,9 +19,9 @@ module Ym4r
       def initialize(container, variable = "map")
         @container = container
         @variable = variable
+        @options = {:mapTypeId => ROADMAP} #for stuff that must be initialized at the beginning (center + zoom + mapTypeId)
         @init = []
         @init_end = [] #for stuff that must be initialized at the end (controls)
-        @init_begin = [] #for stuff that must be initialized at the beginning (center + zoom)
         @global_init = []
       end
 
@@ -76,28 +81,29 @@ module Ym4r
 
       #Initializes the controls: you can pass a hash with keys <tt>:small_map</tt>, <tt>:large_map</tt>, <tt>:small_zoom</tt>, <tt>:scale</tt>, <tt>:map_type</tt>, <tt>:overview_map</tt> and hash of options controlling its display (<tt>:hide</tt> and <tt>:size</tt>), <tt>:local_search</tt>, <tt>:local_search_options</tt>, and <tt>:show_on_focus</tt>
       def control_init(controls = {})
-        @init_end << add_control(GSmallMapControl.new) if controls[:small_map]
-        @init_end << add_control(GLargeMapControl.new) if controls[:large_map]
-        @init_end << add_control(GSmallZoomControl.new) if controls[:small_zoom]
-        @init_end << add_control(GScaleControl.new) if controls[:scale]
-        @init_end << add_control(GMapTypeControl.new) if controls[:map_type]
-        @init_end << add_control(GHierarchicalMapTypeControl.new) if controls[:hierarchical_map_type]
-        if controls[:overview_map]
-          if controls[:overview_map].is_a?(Hash)
-            hide = controls[:overview_map][:hide]
-            size = controls[:overview_map][:size]
-          end
-          overview_control = GOverviewMapControl.new(size)
-          @global_init << overview_control.declare("#{@variable}_ovm") if hide
-          @init_end << add_control(overview_control)
-          @init_end << "#{overview_control.variable}.hide(true);" if hide
-        end
-        @init_end << add_control(GLocalSearchControl.new(controls[:anchor], controls[:offset_width], controls[:offset_height], controls[:local_search_options])) if controls[:local_search]
-        if controls[:show_on_focus]  # Should be last
-          @init_end << "#{@variable}.hideControls();"
-          event_init(self, :mouseover, "function(){#{@variable}.showControls();}")
-          event_init(self, :mouseout,  "function(){#{@variable}.hideControls();}")
-        end
+        # FIXME:
+        #~ @init_end << add_control(GSmallMapControl.new) if controls[:small_map]
+        #~ @init_end << add_control(GLargeMapControl.new) if controls[:large_map]
+        #~ @init_end << add_control(GSmallZoomControl.new) if controls[:small_zoom]
+        #~ @init_end << add_control(GScaleControl.new) if controls[:scale]
+        #~ @init_end << add_control(GMapTypeControl.new) if controls[:map_type]
+        #~ @init_end << add_control(GHierarchicalMapTypeControl.new) if controls[:hierarchical_map_type]
+        #~ if controls[:overview_map]
+          #~ if controls[:overview_map].is_a?(Hash)
+            #~ hide = controls[:overview_map][:hide]
+            #~ size = controls[:overview_map][:size]
+          #~ end
+          #~ overview_control = GOverviewMapControl.new(size)
+          #~ @global_init << overview_control.declare("#{@variable}_ovm") if hide
+          #~ @init_end << add_control(overview_control)
+          #~ @init_end << "#{overview_control.variable}.hide(true);" if hide
+        #~ end
+        #~ @init_end << add_control(GLocalSearchControl.new(controls[:anchor], controls[:offset_width], controls[:offset_height], controls[:local_search_options])) if controls[:local_search]
+        #~ if controls[:show_on_focus]  # Should be last
+          #~ @init_end << "#{@variable}.hideControls();"
+          #~ event_init(self, :mouseover, "function(){#{@variable}.showControls();}")
+          #~ event_init(self, :mouseout,  "function(){#{@variable}.hideControls();}")
+        #~ end
       end
 
       #Initializes the interface configuration: double-click zoom, dragging, continuous zoom,... You can pass a hash with keys <tt>:dragging</tt>, <tt>:info_window</tt>, <tt>:double_click_zoom</tt>, <tt>:continuous_zoom</tt> and <tt>:scroll_wheel_zoom</tt>. The values should be true or false. Check the google maps API doc to know what the default values are.
@@ -141,11 +147,9 @@ module Ym4r
 
       #Initializes the initial center and zoom of the map. +center+ can be both a GLatLng object or a 2-float array.
       def center_zoom_init(center, zoom)
-        if center.is_a?(GLatLng)
-          @init_begin << set_center(center,zoom)
-        else
-          @init_begin << set_center(GLatLng.new(center),zoom)
-        end
+        center = GLatLng.new(center) unless center.is_a?(GLatLng)
+        @options[:zoom] = zoom
+        @options[:center] = center
       end
 
       #Center and zoom based on the coordinates passed as argument (either 2D arrays or GLatLng objects)
@@ -154,7 +158,7 @@ module Ym4r
           if(points[0].is_a?(Array))
             points = points.collect { |point| GLatLng.new(point) }
           end
-          @init_begin << center_and_zoom_on_points(points)
+          @options.merge(center_and_zoom_on_points(points))
         end
       end
 
@@ -169,12 +173,12 @@ module Ym4r
         end
         #else it is already a latlngbounds object
 
-        @init_begin << center_and_zoom_on_bounds(latlngbounds)
+        @options.merge(center_and_zoom_on_bounds(latlngbounds))
       end
 
       #Initializes the map by adding an overlay (marker or polyline).
       def overlay_init(overlay)
-        @init << add_overlay(overlay)
+        @init << overlay.set_map(self)
       end
 
       #Sets up a new map type. If +add+ is false, all the other map types of the map are wiped out. If you want to access the map type in other methods, you should declare the map type first (with +declare_init+).
@@ -224,8 +228,8 @@ module Ym4r
 
       #Declares the overlay globally with name +name+
       def overlay_global_init(overlay,name, options = {})
-        declare_global_init(overlay,name, options)
-        @init << add_overlay(overlay)
+        declare_global_init(overlay, name, options)
+        @init << overlay.set_map(self)
       end
 
       #Globally declare a MappingObject with variable name "name". Option <tt>:local_construction</tt> should be passed if the construction has to be done inside the onload callback method (for exsample if it depends on the GMap to be initialized)
@@ -261,8 +265,6 @@ module Ym4r
           html << "function() {\n"
         end
 
-        html << "if (GBrowserIsCompatible()) {\n"
-
         if fullscreen
           #Adding the initial resizing and setting up the event handler for
           #future resizes
@@ -275,10 +277,8 @@ module Ym4r
         else
           html << "#{assign_to(@variable)}\n"
         end
-        html << @init_begin * "\n"
         html << @init * "\n"
         html << @init_end * "\n"
-        html << "\n}\n"
         html << "});\n" if !no_load
         html << "</script>" if !no_script_tag
 
@@ -292,7 +292,7 @@ module Ym4r
 
       #Outputs in JavaScript the creation of a google.maps.Map object
       def create
-        "new google.maps.Map(document.getElementById(\"#{@container}\"))"
+        "new google.maps.Map(document.getElementById(\"#{@container}\"), #{MappingObject.javascriptify_variable(@options)});"
       end
     end
   end

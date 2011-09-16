@@ -11,10 +11,10 @@ MarkerGroup.prototype.initialize = function(map) {
 
   if(this.active){
     for(var i = 0 , len = this.markers.length; i < len; i++) {
-      this.map.addOverlay(this.markers[i]);
+      this.markers[i].setMap(this.map);
     }
     for(var id in this.markersById){
-      this.map.addOverlay(this.markersById[id]);
+      this.markersById[id].setMap(this.map);
     }
   }
 }
@@ -53,7 +53,7 @@ MarkerGroup.prototype.addMarker = function(marker,id){
     this.markersById[id] = marker;
   }
   if(this.active && this.map != undefined ){
-    this.map.addOverlay(marker);
+    marker.setMap(this.map);
   }
 }
 
@@ -84,10 +84,10 @@ MarkerGroup.prototype.activate = function(active){
     if(!this.active){
       if(this.map != undefined){
         for(var i = 0 , len = this.markers.length; i < len; i++){
-            this.map.addOverlay(this.markers[i]);
+          this.markers[i].setMap(this.map);
         }
         for(var id in this.markersById){
-            this.map.addOverlay(this.markersById[id]);
+          this.markersById[id].setMap(this.map);
         }
       }
       this.active = true;
