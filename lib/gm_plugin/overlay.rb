@@ -17,7 +17,7 @@ module Ym4r
         @info_window = options.delete(:info_window)
         @info_window_tabs = options.delete(:info_window_tabs)
         if options.has_key?(:max_url)
-          @info_window_options = {:max_url => options.delete(:max_url) } 
+          @info_window_options = {:max_url => options.delete(:max_url) }
         else
           @info_window_options = {}
         end
@@ -26,15 +26,15 @@ module Ym4r
       #Creates a marker: If an info_window or info_window_tabs is present, the response to the click action from the user is setup here.
       def create
         if @options.empty?
-          creation = "new GMarker(#{MappingObject.javascriptify_variable(@point)})"
+          creation = "new google.maps.Marker(#{MappingObject.javascriptify_variable(@point)})"
         else
-          creation = "new GMarker(#{MappingObject.javascriptify_variable(@point)},#{MappingObject.javascriptify_variable(@options)})"
+          creation = "new google.maps.Marker(#{MappingObject.javascriptify_variable(@point)},#{MappingObject.javascriptify_variable(@options)})"
         end
         if @info_window && @info_window.is_a?(String)
           creation = "addInfoWindowToMarker(#{creation},#{MappingObject.javascriptify_variable(@info_window)},#{MappingObject.javascriptify_variable(@info_window_options)})"
         elsif @info_window_tabs && @info_window_tabs.is_a?(Hash)
           creation = "addInfoWindowTabsToMarker(#{creation},#{MappingObject.javascriptify_variable(@info_window_tabs.to_a.collect{|kv| GInfoWindowTab.new(kv[0],kv[1] ) })},#{MappingObject.javascriptify_variable(@info_window_options)})"
-        elsif @info_window_tabs 
+        elsif @info_window_tabs
           creation = "addInfoWindowTabsToMarker(#{creation},#{MappingObject.javascriptify_variable(Array(@info_window_tabs))},#{MappingObject.javascriptify_variable(@info_window_options)})"
         end
         if @address.nil?
@@ -44,7 +44,7 @@ module Ym4r
         end
       end
     end
-    
+
     #Represents a tab to be displayed in a bubble when a marker is clicked on.
     class GInfoWindowTab < Struct.new(:tab,:content)
       include MappingObject
@@ -52,7 +52,7 @@ module Ym4r
         "new GInfoWindowTab(#{MappingObject.javascriptify_variable(tab)},#{MappingObject.javascriptify_variable(content)})"
       end
     end
-        
+
     #Represents a definition of an icon. You can pass rubyfied versions of the attributes detailed in the Google Maps API documentation. You can initialize global icons to be used in the application by passing a icon object, along with a variable name, to GMap#icon_init. If you want to declare an icon outside this, you will need to declare it first, since the JavaScript constructor does not accept any argument.
     class GIcon
       include MappingObject
@@ -78,7 +78,7 @@ module Ym4r
         end
       end
     end
-     
+
     #A polyline.
     class GPolyline
       include MappingObject
@@ -105,7 +105,7 @@ module Ym4r
     end
 
     #
-    # Encoded GPolyline class.  This class does NOT perform encoding. 
+    # Encoded GPolyline class.  This class does NOT perform encoding.
     # Instead, you must pass it encoded points, levels, and a zoom_factor
     # created using Ym4r::GmPlugin::GMapPolylineEncoder.
     #
@@ -113,7 +113,7 @@ module Ym4r
     #  http://code.google.com/apis/maps/documentation/reference.html#GPolyline.fromEncoded
     #  http://code.google.com/apis/maps/documentation/overlays.html#Encoded_Polylines
     #
-    class GPolylineEncoded 
+    class GPolylineEncoded
       include MappingObject
       attr_accessor :points,:color,:weight,:opacity,:levels,:zoom_factor,:num_levels
 
@@ -127,7 +127,7 @@ module Ym4r
         @num_levels = options[:num_levels] || 4
       end
       def create
-        a = "new GPolyline.fromEncoded({points: #{MappingObject.javascriptify_variable(points)},\n" 
+        a = "new GPolyline.fromEncoded({points: #{MappingObject.javascriptify_variable(points)},\n"
         a << "levels: #{MappingObject.javascriptify_variable(@levels)},"
         a << "zoomFactor: #{MappingObject.javascriptify_variable(@zoom_factor)},"
         a << "numLevels: #{MappingObject.javascriptify_variable(@num_levels)}"
@@ -139,10 +139,10 @@ module Ym4r
     end
 
     #A basic Latitude/longitude point.
-    class GLatLng 
+    class GLatLng
       include MappingObject
       attr_accessor :lat,:lng,:unbounded
-      
+
       def initialize(latlng,unbounded = nil)
         @lat = latlng[0]
         @lng = latlng[1]
@@ -150,29 +150,29 @@ module Ym4r
       end
       def create
         unless @unbounded
-          "new GLatLng(#{MappingObject.javascriptify_variable(@lat)},#{MappingObject.javascriptify_variable(@lng)})"
+          "new google.maps.LatLng(#{MappingObject.javascriptify_variable(@lat)},#{MappingObject.javascriptify_variable(@lng)})"
         else
-          "new GLatLng(#{MappingObject.javascriptify_variable(@lat)},#{MappingObject.javascriptify_variable(@lng)},#{MappingObject.javascriptify_variable(@unbounded)})"
+          "new google.maps.LatLng(#{MappingObject.javascriptify_variable(@lat)},#{MappingObject.javascriptify_variable(@lng)},#{MappingObject.javascriptify_variable(@unbounded)})"
         end
       end
     end
-    
+
     #A rectangular bounding box, defined by its south-western and north-eastern corners.
     class GLatLngBounds < Struct.new(:sw,:ne)
       include MappingObject
       def create
-        "new GLatLngBounds(#{MappingObject.javascriptify_variable(sw)},#{MappingObject.javascriptify_variable(ne)})"
+        "new google.maps.LatLngBounds(#{MappingObject.javascriptify_variable(sw)},#{MappingObject.javascriptify_variable(ne)})"
       end
     end
 
-    # Wrapper for the Google Maps GPolygon class.  See the Google Maps API 
-    # docs: 
+    # Wrapper for the Google Maps GPolygon class.  See the Google Maps API
+    # docs:
     # http://code.google.com/apis/maps/documentation/reference.html#GPolygon
     class GPolygon
       include MappingObject
-      
+
       attr_accessor :points,:stroke_color,:stroke_weight,:stroke_opacity,:color,:opacity
-      
+
       #Can take an array of +GLatLng+ or an array of 2D arrays. A method to directly build a polygon from a GeoRuby polygon is provided in the helper.rb file.
       def initialize(points,stroke_color="#000000",stroke_weight=1,stroke_opacity=1.0,color="#ff0000",opacity=1.0,encoded=false)
         if !points.empty? and points[0].is_a?(Array)
@@ -186,7 +186,7 @@ module Ym4r
         @color = color
         @opacity = opacity
       end
-      
+
       #Creates a new polygon
       def create
         a = "new GPolygon(#{MappingObject.javascriptify_variable(points)}"
@@ -206,11 +206,11 @@ module Ym4r
     # complex polygons with multiple rings to be rendered.  When creating a
     # GPolygonEncoded, pass it GPolylineEncoded objects.
     #
-    class GPolygonEncoded 
+    class GPolygonEncoded
       include MappingObject
-      
+
       attr_accessor :polyline, :color, :opacity, :outline, :fill
-      
+
       def initialize(polylines,fill=true,color="#000000",opacity=0.5,outline=false)
         #force polylines to be an array
         if polylines.is_a? Array
@@ -219,16 +219,16 @@ module Ym4r
           @polylines = [polylines]
         end
         @color = color
-        @fill = fill 
+        @fill = fill
         @opacity = opacity
         @outline = outline
       end
-      
+
       #Creates a new polygon.
       def create
         polylines_for_polygon= []
         @polylines.each do |p|
-          x = "{points: #{MappingObject.javascriptify_variable(p.points)}," 
+          x = "{points: #{MappingObject.javascriptify_variable(p.points)},"
           x << "levels: #{MappingObject.javascriptify_variable(p.levels)},"
           x << "zoomFactor: #{MappingObject.javascriptify_variable(p.zoom_factor)},"
           x << "numLevels: #{MappingObject.javascriptify_variable(p.num_levels)}"
@@ -272,7 +272,7 @@ module Ym4r
     #A GGeoXml object gets data from a GeoRSS or KML feed and displays it. Use <tt>overlay_init</tt> to add it to a map at initialization time.
     class GGeoXml
       include MappingObject
-      
+
       attr_accessor :url
 
       def initialize(url)
@@ -284,7 +284,7 @@ module Ym4r
       end
 
     end
-    
+
     #A GOverlay representing a group of GMarkers. The GMarkers can be identified with an id, which can be used to show the info window of a specific marker, in reponse, for example, to a click on a link. The whole group can be shown on and off at once. It should be declared global at initialization time to be useful.
     class GMarkerGroup
       include MappingObject
@@ -300,18 +300,18 @@ module Ym4r
           @markers_by_id = markers
         end
       end
-      
+
       def create
-        "new GMarkerGroup(#{MappingObject.javascriptify_variable(@active)},#{MappingObject.javascriptify_variable(@markers)},#{MappingObject.javascriptify_variable(@markers_by_id)})"
+        "new MarkerGroup(#{MappingObject.javascriptify_variable(@active)},#{MappingObject.javascriptify_variable(@markers)},#{MappingObject.javascriptify_variable(@markers_by_id)})"
       end
     end
 
-    #Can be used to implement a clusterer, similar to the clusterer below, except that there is more stuff to manage explicitly byt the programmer (but this is also more flexible). See the README for usage esamples.
+    #Can be used to implement a clusterer, similar to the clusterer below, except that there is more stuff to manage explicitly by the programmer (but this is also more flexible). See the README for usage esamples.
     class GMarkerManager
       include MappingObject
-      
+
       attr_accessor :map,:options,:managed_markers
-            
+
       #options can be <tt>:border_padding</tt>, <tt>:max_zoom</tt>, <tt>:track_markers</tt> and <tt>:managed_markers</tt>: managed_markers must be an array of ManagedMarker objects
       def initialize(map, options = {})
         @map = map
@@ -321,7 +321,7 @@ module Ym4r
 
       def create
         puts @options.inspect
-        "addMarkersToManager(new GMarkerManager(#{MappingObject.javascriptify_variable(@map)},#{MappingObject.javascriptify_variable(@options)}),#{MappingObject.javascriptify_variable(@managed_markers)})"
+        "addMarkersToManager(MarkerManager(#{MappingObject.javascriptify_variable(@map)},#{MappingObject.javascriptify_variable(@options)}),#{MappingObject.javascriptify_variable(@managed_markers)})"
       end
 
     end
@@ -329,9 +329,9 @@ module Ym4r
     #A set of similarly managed markers: They share the same minZoom and maxZoom.
     class ManagedMarker
       include MappingObject
-      
+
       attr_accessor :markers,:min_zoom, :max_zoom
-      
+
       def initialize(markers,min_zoom,max_zoom = nil)
         @markers = markers
         @min_zoom = min_zoom
@@ -341,7 +341,7 @@ module Ym4r
       def create
         "new ManagedMarker(#{MappingObject.javascriptify_variable(@markers)},#{MappingObject.javascriptify_variable(@min_zoom)},#{MappingObject.javascriptify_variable(@max_zoom)})"
       end
-      
+
     end
 
     #Makes the link with the Clusterer2 library by Jef Poskanzer (slightly modified though). Is a GOverlay making clusters out of its GMarkers, so that GMarkers very close to each other appear as one when the zoom is low. When the zoom gets higher, the individual markers are drawn.
@@ -358,25 +358,25 @@ module Ym4r
         @max_lines_per_info_box = options[:max_lines_per_info_box] || 10
       end
 
-      def create 
+      def create
         js_marker = '[' + @markers.collect do |marker|
           add_description(marker)
         end.join(",") + ']'
 
         "new Clusterer(#{js_marker},#{MappingObject.javascriptify_variable(@icon)},#{MappingObject.javascriptify_variable(@max_visible_markers)},#{MappingObject.javascriptify_variable(@grid_size)},#{MappingObject.javascriptify_variable(@min_markers_per_cluster)},#{MappingObject.javascriptify_variable(@max_lines_per_info_box)})"
       end
-            
+
       private
       def add_description(marker)
         "addDescriptionToMarker(#{MappingObject.javascriptify_variable(marker)},#{MappingObject.javascriptify_variable(marker.options[:description] || marker.options[:title] || '')})"
       end
     end
-    
+
     #Makes the link with the MGeoRSS extension by Mikel Maron (a bit modified though). It lets you overlay on top of Google Maps the items present in a RSS feed that has GeoRss data. This data can be either in W3C Geo vocabulary or in the GeoRss Simple format. See http://georss.org to know more about GeoRss.
     class GeoRssOverlay
       include MappingObject
       attr_accessor :url, :proxy, :icon, :options
-      
+
       #You can pass the following options:
       #- <tt>:icon</tt>: An icon for the items of the feed. Defaults to the classic red balloon icon.
       #- <tt>:proxy</tt>: An URL on your server where fetching the RSS feed will be taken care of.
@@ -388,10 +388,10 @@ module Ym4r
         @url = url
         @icon = options.delete(:icon) || GIcon::DEFAULT
         @proxy = options.delete(:proxy) || Variable::UNDEFINED
-        @options = options 
+        @options = options
       end
 
-      def create 
+      def create
         "new GeoRssOverlay(#{MappingObject.javascriptify_variable(@url)},#{MappingObject.javascriptify_variable(@icon)},#{MappingObject.javascriptify_variable(@proxy)},#{MappingObject.javascriptify_variable(@options)})"
       end
     end

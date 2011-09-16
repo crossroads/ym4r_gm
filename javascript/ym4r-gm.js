@@ -36,25 +36,24 @@ function addCodeToFunction(func,code){
   }
 }
 
-function addGeocodingToMarker(marker,address){
+function addGeocodingToMarker(marker, address){
   marker.orig_initialize = marker.initialize;
   orig_redraw = marker.redraw;
   marker.redraw = function(force){}; //empty the redraw method so no error when called by addOverlay.
   marker.initialize = function(map){
-    new GClientGeocoder().getLatLng(address,
-      function(latlng){
-        if(latlng){
-          marker.redraw = orig_redraw;
-          marker.orig_initialize(map); //init before setting point
-          marker.setPoint(latlng);
-        }//do nothing
-      });
+    new google.maps.Geocoder().geocode({'address': address}, function(results, status) {
+      if (status == google.maps.GeocoderStatus.OK) {
+        marker.redraw = orig_redraw;
+        marker.orig_initialize(map); //init before setting point
+        marker.setPosition(results[0].geometry.location);
+      }
+    });
   };
   return marker;
 }
 
 google.maps.Map.prototype.centerAndZoomOnMarkers = function(markers) {
-  var bounds = new GLatLngBounds(markers[0].getPoint(),
+  var bounds = new google.maps.LatLngBounds(markers[0].getPoint(),
       markers[0].getPoint());
   for (var i=1, len = markers.length ; i<len; i++) {
     bounds.extend(markers[i].getPoint());
@@ -64,7 +63,7 @@ google.maps.Map.prototype.centerAndZoomOnMarkers = function(markers) {
 }
 
 google.maps.Map.prototype.centerAndZoomOnPoints = function(points) {
-  var bounds = new GLatLngBounds(points[0],
+  var bounds = new google.maps.LatLngBounds(points[0],
       points[0]);
   for (var i=1, len = points.length ; i<len; i++) {
     bounds.extend(points[i]);
@@ -105,10 +104,4 @@ function addMarkersToManager(manager,managedMarkers){
   return manager;
 }
 
-var INVISIBLE = new GLatLng(0,0); //almost always invisible
-
-if(self.Event && Event.observe){
-  Event.observe(window, 'unload', GUnload);
-}else{
-  window.onunload = GUnload;
-}
+var INVISIBLE = new google.maps.LatLng(0,0); //almost always invisible

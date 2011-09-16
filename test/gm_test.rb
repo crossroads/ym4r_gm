@@ -50,7 +50,7 @@ class TestGoogleMaps< Test::Unit::TestCase
   
   def test_declare_variable_latlng
     point = GLatLng.new([123.4,123.6])
-    assert_equal("var point = new GLatLng(123.4,123.6);",point.declare("point"))
+    assert_equal("var point = new google.maps.LatLng(123.4,123.6);",point.declare("point"))
     assert_equal("point",point.variable)
     assert_equal("point",point.variable.to_str)
 end

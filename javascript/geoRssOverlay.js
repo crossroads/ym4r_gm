@@ -158,8 +158,8 @@ GeoRssOverlay.prototype.createMarker = function(item,index) {
 	}
     }
     
-    var point = new GLatLng(parseFloat(lat), parseFloat(lng));
-    var marker = new GMarker(point,{'title': title});
+    var point = new google.maps.LatLng(parseFloat(lat), parseFloat(lng));
+    var marker = new google.maps.Marker(point,{'title': title});
     var html = "<a href=\"" + link + "\">" + title + "</a><p/>" + description;
     
     if(this.contentDiv == undefined){

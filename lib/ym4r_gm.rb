@@ -1,4 +1,3 @@
-require 'gm_plugin/key'
 require 'gm_plugin/mapping'
 require 'gm_plugin/map'
 require 'gm_plugin/control'
