@@ -1,8 +1,8 @@
 # YM4R/GM plugin for Rails 3
-Note by guilleiguaran: If you need the version for Rails 2.x check this repo: <a href="http://github.com/ewildgoose/ym4r_gm">http://github.com/ewildgoose/ym4r_gm</a>
+
+Updated to use google maps api v3.x I have only tested the functionality we use, which does not include Clustering or GeoRss so if you want to use them there will probably be some more work involved.
 
 This is the latest version of the YM4R/GM plugin for Rails (YM4RGMP4R?). Its aim is to facilitate the use of Google Maps from Rails application. It includes and enhances all the web application-related functionalities found in the YM4R gem as of version 0.4.1.
-
 
 ## Getting Started
 I present here the most common operations you would want to do with YM4R/GM. Read the rest of the documents if you want more details.
