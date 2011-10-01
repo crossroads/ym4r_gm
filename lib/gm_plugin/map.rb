@@ -158,7 +158,7 @@ module Ym4r
           if(points[0].is_a?(Array))
             points = points.collect { |point| GLatLng.new(point) }
           end
-          @options.merge(center_and_zoom_on_points(points))
+          @init << center_and_zoom_on_points(points)
         end
       end
 
@@ -173,7 +173,7 @@ module Ym4r
         end
         #else it is already a latlngbounds object
 
-        @options.merge(center_and_zoom_on_bounds(latlngbounds))
+        @init << center_and_zoom_on_bounds(latlngbounds)
       end
 
       #Initializes the map by adding an overlay (marker or polyline).
