@@ -53,13 +53,13 @@ function addGeocodingToMarker(marker, address){
 }
 
 google.maps.Map.prototype.centerAndZoomOnMarkers = function(markers) {
-  var bounds = new google.maps.LatLngBounds(markers[0].getPoint(),
-      markers[0].getPoint());
+  var bounds = new google.maps.LatLngBounds(markers[0].getPosition(),
+      markers[0].getPosition());
   for (var i=1, len = markers.length ; i<len; i++) {
-    bounds.extend(markers[i].getPoint());
+    bounds.extend(markers[i].getPosition());
   }
 
-  this.centerAndZoomOnBounds(bounds);
+  this.fitBounds(bounds);
 }
 
 google.maps.Map.prototype.centerAndZoomOnPoints = function(points) {
@@ -69,12 +69,11 @@ google.maps.Map.prototype.centerAndZoomOnPoints = function(points) {
     bounds.extend(points[i]);
   }
 
-  this.centerAndZoomOnBounds(bounds);
+  this.fitBounds(bounds);
 }
 
 google.maps.Map.prototype.centerAndZoomOnBounds = function(bounds) {
-  var center = bounds.getCenter();
-  this.setCenter(center, this.getBoundsZoomLevel(bounds));
+  this.fitBounds(bounds);
 }
 
 //For full screen mode
