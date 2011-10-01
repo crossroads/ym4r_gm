@@ -33,7 +33,6 @@ Gem::Specification.new do |s|
     "lib/gm_plugin/encoder.rb",
     "lib/gm_plugin/geocoding.rb",
     "lib/gm_plugin/helper.rb",
-    "lib/gm_plugin/key.rb",
     "lib/gm_plugin/layer.rb",
     "lib/gm_plugin/map.rb",
     "lib/gm_plugin/mapping.rb",
